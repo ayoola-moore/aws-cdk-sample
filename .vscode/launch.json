@@ -1,0 +1,19 @@
+{
+  "configurations": [
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "EasytripInfrastructureStack-HelloHandler2E4FBA4D-wB3kNERMyh1O:hello.handler (nodejs16.x)",
+      "invokeTarget": {
+        "target": "code",
+        "projectRoot": "${workspaceFolder}/EasytripInfrastructureStack-HelloHandler2E4FBA4D-wB3kNERMyh1O",
+        "lambdaHandler": "hello.handler"
+      },
+      "lambda": {
+        "runtime": "nodejs16.x",
+        "payload": {},
+        "environmentVariables": {}
+      }
+    }
+  ]
+}
