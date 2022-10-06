@@ -6,12 +6,12 @@ import {
   IDistribution,
   OriginAccessIdentity,
   PriceClass,
-  ViewerCertificate,
-  ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
+import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { IBucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
+import isSubDomain from "../helpers/isSubDomain";
 import { CreateSsmParams } from "./create-ssm-parameter";
 
 interface ICreateCloudfrontDistributionFromS3 {
@@ -23,7 +23,7 @@ interface ICreateCloudfrontDistributionFromS3 {
 }
 
 export default class CreateCloudfrontDistributionFromS3 extends Construct {
-  public readonly cloudFront: IDistribution
+  public readonly cloudFront: IDistribution;
   constructor(
     scope: Construct,
     id: string,
@@ -43,51 +43,33 @@ export default class CreateCloudfrontDistributionFromS3 extends Construct {
 
     const ROOT_INDEX_FILE = "index.html";
 
-    this.cloudFront = new cloudfront.CloudFrontWebDistribution(this, id, {
+    const aliases = isSubDomain(domainName)
+      ? [domainName]
+      : [`www.${domainName}`, domainName];
+
+    this.cloudFront = new cloudfront.Distribution(this, id, {
+      defaultBehavior: {
+        origin: new origins.S3Origin(s3Bucket, {
+          originPath: cfdBucketPath,
+        }),
+      },
+      certificate: cert,
+      domainNames: aliases,
       comment: "CDK Cloudfront Secure S3",
-      viewerCertificate: ViewerCertificate.fromAcmCertificate(cert, {
-        aliases: [domainName, `www.${domainName}`],
-      }),
       defaultRootObject: ROOT_INDEX_FILE,
-      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       httpVersion: HttpVersion.HTTP2,
-      webACLId: webAclId,
-      priceClass: PriceClass.PRICE_CLASS_100, // the cheapest
-      originConfigs: [
-        {
-          s3OriginSource: {
-            originAccessIdentity: accessIdentity,
-            s3BucketSource: s3Bucket,
-            originPath: `/${cfdBucketPath}`,
-          },
-          behaviors: [
-            {
-              compress: true,
-              isDefaultBehavior: true,
-            },
-          ],
-        },
-      ],
-      // Allows React to handle all errors internally
-      errorConfigurations: [
-        {
-          errorCachingMinTtl: 300, // in seconds
-          errorCode: 403,
-          responseCode: 200,
-          responsePagePath: `/${ROOT_INDEX_FILE}`,
-        },
-        {
-          errorCachingMinTtl: 300, // in seconds
-          errorCode: 404,
-          responseCode: 200,
-          responsePagePath: `/${ROOT_INDEX_FILE}`,
-        },
-      ],
+      webAclId: webAclId,
+      priceClass: PriceClass.PRICE_CLASS_ALL,
+      enableLogging: true,
+      logFilePrefix: "cloudfront-",
     });
 
-    (this.cloudFront.node.defaultChild as cloudfront.CfnDistribution).overrideLogicalId('cfDistOverridenId')
-
-    const [cfdBuckName, cfdBuckPath, cfdUrl, cfdID] = [`${id}-bucketName`, `${id}-bucketPath` ,`${id}-cfdUrl`, `${id}-cfdID`];
+    const [cfdBuckName, cfdBuckPath, cfdUrl, cfdID] = [
+      `${id}-bucketName`,
+      `${id}-bucketPath`,
+      `${id}-cfdUrl`,
+      `${id}-cfdID`,
+    ];
 
     /* Initialize ssm parameter to store output values. This has a couple of use cases eg. To be used with gitlab ci  */
     new CreateSsmParams(this, cfdBuckName, {
@@ -95,7 +77,7 @@ export default class CreateCloudfrontDistributionFromS3 extends Construct {
       stringValue: s3Bucket.bucketName,
       description: `s3 bucket name for ${id}`,
     });
-    
+
     new CreateSsmParams(this, cfdBuckPath, {
       parameterName: cfdBuckPath,
       stringValue: cfdBucketPath,
@@ -116,8 +98,7 @@ export default class CreateCloudfrontDistributionFromS3 extends Construct {
 
     new CfnOutput(this, `cfnOutput-${id}`, {
       value: JSON.stringify({ cfdBuckName, cfdUrl, cfdID }),
-      description: `SSM parameter key for ${id}`
-    })
-
+      description: `SSM parameter key for ${id}`,
+    });
   }
 }

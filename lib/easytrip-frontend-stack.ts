@@ -1,4 +1,5 @@
 import { Stack, StackProps } from "aws-cdk-lib";
+import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 import { Construct } from "constructs";
 import CreateCloudfrontDistributionFromS3 from "./constructs/create-cloudfront-distribution";
 import CreateDNS from "./constructs/create-dns-record-in-route53";
@@ -9,6 +10,7 @@ import SetIpRestrictionWithWAF from "./constructs/setup-firewall-for-ip-restrict
 interface IEasytripInfrastructureStack extends StackProps {
   domainName: string;
   deployTo: string;
+  cert: ICertificate;
 }
 export class EasytripFrontendStack extends Stack {
   constructor(
@@ -18,17 +20,13 @@ export class EasytripFrontendStack extends Stack {
   ) {
     super(scope, id, props);
 
-    const { domainName, deployTo } = props;
-
-    // provision ssl cert
-    const { cert } = new SetupSSLCert(this, `easytrip-mu-certName`, {
-      domainName,
-    });
+    const { domainName, deployTo, cert } = props;
 
     // set up s3 bucket
     const { s3Bucket } = new CreateStaticHostBucket(this, `easytrip-mu-bucket`);
 
     if (deployTo === "dev") {
+      
       // set up Ip restriction using AWS WAF
       const { WAF } = new SetIpRestrictionWithWAF(this, `easytrip-mu-waf`, {
         ipSetId: `ipSet`,
@@ -52,7 +50,7 @@ export class EasytripFrontendStack extends Stack {
 
       // set route53
       new CreateDNS(this, "dns-dev", {
-        domainName: "dev.easytrip.mu",
+        domainName,
         cloudFront,
       });
     }
@@ -72,7 +70,7 @@ export class EasytripFrontendStack extends Stack {
 
       // set route53
       new CreateDNS(this, "dns-prod", {
-        domainName: "easytrip.mu",
+        domainName,
         cloudFront,
       });
     }

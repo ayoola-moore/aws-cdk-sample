@@ -3,7 +3,9 @@ import {
   CertificateValidation,
   ICertificate,
 } from "aws-cdk-lib/aws-certificatemanager";
+import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
+import isSubDomain from "../helpers/isSubDomain";
 
 interface ISetupSSLCert {
   // TODO Investigate why the below validation isn't working
@@ -15,13 +17,26 @@ export default class SetupSSLCert extends Construct {
   public readonly cert: ICertificate;
   constructor(scope: Construct, id: string, props: ISetupSSLCert) {
     super(scope, id);
-    this.cert = new acm.Certificate(
+
+    const { domainName } = props;
+
+    const zone = route53.HostedZone.fromHostedZoneAttributes(
       this,
-      `easytrip-mu-webCert`,
+      "hostedZone",
       {
-        domainName: props.domainName,
-        validation: CertificateValidation.fromDns(),
+        zoneName: domainName,
+        hostedZoneId: this.node.tryGetContext("hostedZoneId"),
       }
     );
+
+    const subjectAlternativeNames = isSubDomain(domainName)
+      ? [domainName]
+      : [`www.${domainName}`, `*.${domainName}`];
+
+    this.cert = new acm.Certificate(this, `easytrip-mu-webCert`, {
+      domainName,
+      subjectAlternativeNames,
+      validation: CertificateValidation.fromDns(zone),
+    });
   }
 }

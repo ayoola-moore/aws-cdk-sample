@@ -1,1 +1,11 @@
-{}
+{
+  "shared-ssl": {
+    "ExportsOutputRefcerteasytripmuwebCertD9C81E16A26E47B9": "arn:aws:acm:us-east-1:530273096179:certificate/76732297-c6b2-4e9b-8edf-ab2af6e27b80"
+  },
+  "frontend-dev": {
+    "easytripmudevcfdcfnOutputeasytripmudevcfd0550084E": "{\"cfdBuckName\":\"easytrip-mu-dev-cfd-bucketName\",\"cfdUrl\":\"easytrip-mu-dev-cfd-cfdUrl\",\"cfdID\":\"easytrip-mu-dev-cfd-cfdID\"}"
+  },
+  "frontend-prod": {
+    "easytripmuprodcfdcfnOutputeasytripmuprodcfdC79F75FF": "{\"cfdBuckName\":\"easytrip-mu-prod-cfd-bucketName\",\"cfdUrl\":\"easytrip-mu-prod-cfd-cfdUrl\",\"cfdID\":\"easytrip-mu-prod-cfd-cfdID\"}"
+  }
+}

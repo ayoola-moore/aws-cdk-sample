@@ -1,13 +1,9 @@
 import { IDistribution } from "aws-cdk-lib/aws-cloudfront";
 import * as route53 from "aws-cdk-lib/aws-route53";
-import {
-  AaaaRecord,
-  ARecord,
-  CnameRecord,
-  IHostedZone,
-} from "aws-cdk-lib/aws-route53";
+import { AaaaRecord, ARecord, CnameRecord } from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import { Construct } from "constructs";
+import isSubDomain from "../helpers/isSubDomain";
 
 interface ICreateDNS {
   domainName: string;
@@ -15,16 +11,10 @@ interface ICreateDNS {
 }
 
 export default class CreateDNS extends Construct {
-  public readonly dns: IHostedZone;
-
   constructor(scope: Construct, id: string, props: ICreateDNS) {
     super(scope, id);
 
     const { domainName, cloudFront } = props;
-
-    this.dns = new route53.HostedZone(this, id, {
-      zoneName: domainName,
-    });
 
     const zone = route53.HostedZone.fromHostedZoneAttributes(
       this,
@@ -40,8 +30,6 @@ export default class CreateDNS extends Construct {
       target: route53.RecordTarget.fromAlias(
         new targets.CloudFrontTarget(cloudFront)
       ),
-      deleteExisting: false,
-      recordName: domainName,
     });
 
     new AaaaRecord(this, `_aliasRecord`, {
@@ -49,10 +37,13 @@ export default class CreateDNS extends Construct {
       target: route53.RecordTarget.fromAlias(
         new targets.CloudFrontTarget(cloudFront)
       ),
-      deleteExisting: false,
-      recordName:
-        domainName.split(".").length > 2 ? domainName : `www.${domainName}`,
     });
-
+    
+    // for apex domain, add a cname record that points for example domain.com to www.domain.com 
+    isSubDomain(domainName) === false && new CnameRecord(this, `_cname`, {
+      zone,
+      domainName,
+      recordName: `www.${domainName}`,
+    })
   }
 }

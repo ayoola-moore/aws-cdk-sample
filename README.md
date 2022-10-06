@@ -4,12 +4,9 @@ The project is built with the help of aws cdk. The aim is to have all our AWS in
 Easytrip.mu is registered with cloud.mu and points to route53 via nameservers. 
 
 ### Some manual configuration/Intervention are required. They include
-- Managing redundant certificates from certificate manager eg deletion
-- Managing WAF ipset for developers. 
+- Managing host zone via Route53. Since the domain is currently managed via Route53. The app required a hostZoneId which is a done passed via context.
 
-### Resources that a retained during tear down
-- WAF Ipset
-- 
+- Managing WAF ipset for developers. This is done seperately from the cdk stack. The ipset arn is passed via cdk context. This is done in order to preserve the list of IPs during a tear or a rebuild process 
 
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
@@ -22,4 +19,4 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * `cdk synth`       emits the synthesized CloudFormation template
 
 
-project author: Ayoola O. (For easytripm.mu)
+project author: Ayoola O. (For easytrip.mu)
