@@ -72,6 +72,7 @@ export class EasytripFrontendStack extends Stack {
       new CreateDNS(this, "dns-prod", {
         domainName,
         cloudFront,
+        txtRecordForZohoMail: "zoho-verification=zb27735349.zmverify.zoho.com", // One time value provided by Zohomail
       });
     }
   }

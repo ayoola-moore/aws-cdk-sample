@@ -20,6 +20,7 @@ export default class SetupSSLCert extends Construct {
 
     const { domainName } = props;
 
+    // initial zone
     const zone = route53.HostedZone.fromHostedZoneAttributes(
       this,
       "hostedZone",
@@ -29,10 +30,12 @@ export default class SetupSSLCert extends Construct {
       }
     );
 
+    // construct alternate names
     const subjectAlternativeNames = isSubDomain(domainName)
       ? [domainName]
       : [`www.${domainName}`, `*.${domainName}`];
-
+    
+    // initialize and validate domain automatically
     this.cert = new acm.Certificate(this, `easytrip-mu-webCert`, {
       domainName,
       subjectAlternativeNames,
