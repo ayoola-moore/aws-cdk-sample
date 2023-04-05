@@ -14,9 +14,10 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 ## Useful commands
 
 * `npm run test`    perform the jest unit tests (To Implement)
-* `cdk deploy --all`      deploy this stack to your default AWS account/region
+* `npm run deploy`      deploy this stack to your default AWS account/region. (Remember to redeploy code to the newly created infrastructure, usually this can be done by re-running the pipeline which should be linked to the infrastructure)
 * `cdk diff`        compare deployed stack with current state
 * `cdk synth`       emits the synthesized CloudFormation template
+
 
 
 project author: Ayoola O. (For easytrip.mu)
