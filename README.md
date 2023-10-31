@@ -1,8 +1,5 @@
 The project is built with the help of aws cdk. The aim is to have all our AWS infrastructure provision programmatically and therefore easy to replicate
 
-### domain info
-Easytrip.mu is registered with cloud.mu and points to route53 via nameservers. 
-
 ### Some manual configuration/Intervention are required. They include
 - Managing host zone via Route53. Since the domain is currently managed via Route53. The app required a hostZoneId which is a done passed via context.
 

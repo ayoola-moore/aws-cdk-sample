@@ -70,15 +70,10 @@ export class EasytripFrontendStack extends Stack {
       new CreateDNS(this, "dns-prod", {
         domainName,
         cloudFront,
-        txtRecords: [
-          '"zoho-verification=zb27735349.zmverify.zoho.com"',
-          '"v=spf1 include:zoho.com ~all"',
-        ], // All @ txt records
-        mxRecords: ["10 mx.zoho.com", "20 mx2.zoho.com", "50 mx3.zoho.com"],
-        dkimRecordName: "zmail._domainkey",
-        dkimRecordValue: [
-          '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCYX25mkD4G4YRCqGQ+g8Qkcgmc5ET5RU4g/kQgjkhfzTysBgniAfykev3pclzc91pnRTn3fOvMTIwOimlTFl9NcMhoCiSp+RUJZgH9fiVdo6KuAWKsqyLykWdzMI3KBOejT6cBxKdcvPwFau+v+K7ZnhHnbksAn5H9kMGD+lYHuwIDAQAB"',
-        ]
+        txtRecords: ['"***redacted', '"***redacted'], // All @ txt records
+        mxRecords: ["***redacted"],
+        dkimRecordName: "***redacted",
+        dkimRecordValue: ["***redacted"],
       });
     }
   }

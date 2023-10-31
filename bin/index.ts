@@ -20,7 +20,7 @@ const { ssl } = new CreateSSL(App, "share-cert", {
 
 new EasytripFrontendStack(App, "frontend-dev", {
   stackName: "frontend-dev",
-  domainName: `dev.${domainName}`,
+  domainName: `***redacted.${domainName}`,
   cert: ssl,
   env,
   deployTo: "dev",
