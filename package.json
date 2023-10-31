@@ -2,7 +2,7 @@
   "name": "easytrip-infrastructure",
   "version": "0.1.0",
   "bin": {
-    "easytrip-infrastructure": "bin/easytrip-infrastructure.js"
+    "easytrip-infrastructure": "bin/index.js"
   },
   "scripts": {
     "build": "tsc",
